@@ -94,14 +94,13 @@ h1 {
   color: var(--ink);
 }
 
-/* A mistyped letter is a blue note, not an error: it gets a colour of its own
-   and an underline, never red and never a strike-through. */
+/* A mistyped letter is a blue note, not an error. Warm amber and italic, which
+   reads as expression; an underline would read as spell-check, and red or a
+   strike-through would read as a mark against the player. */
 .ch.bent,
 .ch.extra {
   color: var(--bent);
-  text-decoration: underline;
-  text-decoration-color: rgb(216 166 87 / 45%);
-  text-underline-offset: 0.25em;
+  font-style: italic;
 }
 
 .word.done .ch {
