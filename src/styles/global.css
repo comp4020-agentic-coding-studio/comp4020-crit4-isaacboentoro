@@ -1,0 +1,8 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  font-family: "Roboto Variable", system-ui, sans-serif;
+  margin: 0;
+}
