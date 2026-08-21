@@ -55,3 +55,27 @@ cannot emulate `pointer: coarse`, so a media query I had written for phones was
 untestable. I deleted the branch rather than ship one I had not seen, and wrote
 the rule down with the other two that cost time this week
 ([`87998c0`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-isaacboentoro/commit/87998c0)).
+
+### Deriving the harmony instead of listing it
+
+Free typing needed a chord for any word a stranger might type, and the obvious
+answer --- a lookup table, or a hash into a fixed progression --- would have
+been arbitrary the moment anyone asked why. So the rule is the one a musician
+uses: every letter already names a note, and a word's chord is the triad
+containing the most of them. The triads are stacked out of the scale rather
+than listed, so there is no table of music anywhere in the repo and any word in
+any language gets a chord.
+
+What told me it was right was reading a sentence's worth of output rather than
+the code: `the quick brown fox jumps over a lazy dog` plays C G C Dm Em Am Dm F
+Am, a progression the player wrote by choosing words
+([`180d608`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-isaacboentoro/commit/180d608)).
+
+The same test file caught two bugs the code read as correct on the way there:
+the final note of a phrase could still leap a third, and at the bottom of the
+range under a chord sharing only two notes with the scale, a line failed to
+resolve at all and just stopped. Both were invisible in review and both failed
+the moment the rules were written down as assertions.
+
+![Free mode: no prompt, just what has been typed, with the chord the last word
+chose](docs/free.png)
