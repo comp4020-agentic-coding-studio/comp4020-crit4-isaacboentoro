@@ -40,8 +40,8 @@ When writing paragraphs or text, try to keep it short and boilerplate so I can e
 
 ## What this prototype is
 
-A typing instrument: words scroll under a caret, every key sounds a note, and
-your typing cadence sets the tempo. It is not a typing test. The crit spec says
+A typing instrument: words scroll under a caret, every key sounds a note, a word
+typed correctly plays a composed phrase, and your typing cadence sets the tempo. It is not a typing test. The crit spec says
 "there is no way to play it wrong --- no score, no fail state", so there is no
 accuracy figure, no results screen, no end, and nothing on the page ever turns
 red. Anything that reads as a mark against the player is a bug.
@@ -52,6 +52,10 @@ red. Anything that reads as a mark against the player is a bug.
   only reads `dist/**/*.js`, so a page that audibly works can still fail the
   spec. `vite.build.assetsInlineLimit: 0` in `astro.config.mjs` forces every
   script out to a file; don't remove it.
+- **Musical rules belong in `music.ts` and get asserted.** The phrase generator
+  is held to its own rules by `spec/no-wrong-note.test.ts` — in the pool, moving
+  by step, resolving on a chord tone. That test has already caught a real bug
+  the code read as correct.
 - **jsdom has no Web Audio.** Anything you want to test has to live in a module
   that never imports `AudioContext` --- `src/audio/music.ts` is that module, and
   `src/audio/engine.ts` is the part that can only be checked in a browser.

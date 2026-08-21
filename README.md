@@ -7,8 +7,13 @@ no way to finish.
 
 - **Every key is a note.** Pitches come from one fixed pentatonic pool, so
   nothing you press can be out of key.
-- **A mistyped letter is a blue note.** It lands a semitone flat and bends home
-  over a tenth of a second. Nothing ever turns red.
+- **A word typed correctly plays a composed phrase.** Each word is written a
+  melodic line against the chord underneath it — stepwise, arced, resolving on
+  the last letter — so typing it cleanly sounds like a phrase rather than a
+  scatter of notes.
+- **A mistyped letter is a blue note.** It steps off the line onto the note its
+  own letter names, a semitone flat, bending home over a tenth of a second.
+  Nothing ever turns red.
 - **Finishing a word moves the harmony** one step through a four-chord loop.
 - **Your typing cadence is the tempo.** The median gap between keystrokes sets
   the bpm of the backing pulse and opens the filter as you speed up.

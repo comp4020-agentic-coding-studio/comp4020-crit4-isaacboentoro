@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   bpmFromIntervals,
   charToFreq,
+  CHORDS,
   flat,
   MAX_BPM,
   MIN_BPM,
+  phraseFor,
   PITCHES,
 } from "../src/audio/music.ts";
 
@@ -43,6 +45,73 @@ describe("no way to play it wrong", () => {
     const target = charToFreq("m");
     expect(flat(target)).toBeLessThan(target);
     expect(flat(target)).toBeGreaterThan(target * 0.9);
+  });
+});
+
+// A word typed correctly should sound composed rather than scattered, so the
+// phrase it plays is held to the rules that make it sound that way: in the
+// pool, moving by step, and arriving somewhere the chord agrees with.
+
+const WORDS = ["a", "to", "salt", "morning", "junction", "extraordinarily"];
+
+describe("a correctly typed word plays a phrase", () => {
+  it("stays inside the pentatonic pool", () => {
+    const allowed = new Set(PITCHES);
+
+    for (const word of WORDS) {
+      for (const [chord] of CHORDS.entries()) {
+        for (const freq of phraseFor(word, chord)) {
+          expect(allowed.has(freq), `"${word}" left the scale`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("gives one note per letter", () => {
+    for (const word of WORDS) {
+      expect(phraseFor(word, 0)).toHaveLength(Math.max(word.length, 1));
+    }
+  });
+
+  it("plays the same line for the same word under the same chord", () => {
+    expect(phraseFor("morning", 2)).toEqual(phraseFor("morning", 2));
+  });
+
+  it("writes a different line under a different chord", () => {
+    const lines = CHORDS.map((_, chord) => phraseFor("junction", chord).join());
+    expect(new Set(lines).size).toBeGreaterThan(1);
+  });
+
+  it("moves by step, never by a leap you have to catch up with", () => {
+    for (const word of WORDS) {
+      for (const [chord] of CHORDS.entries()) {
+        const degrees = phraseFor(word, chord).map((freq) => PITCHES.indexOf(freq));
+
+        for (let i = 1; i < degrees.length; i += 1) {
+          const leap = Math.abs(degrees[i]! - degrees[i - 1]!);
+          expect(leap, `"${word}" leapt ${leap} degrees mid-word`).toBeLessThanOrEqual(2);
+        }
+      }
+    }
+  });
+
+  it("scatters more when the word is typed wrong than when it is typed right", () => {
+    // the point of the phrase: the composed line should be smoother than the
+    // letter-by-letter notes a scrambled attempt would sound
+    const word = "extraordinarily";
+    const spread = (freqs: number[]): number => {
+      const degrees = freqs.map((freq) => PITCHES.indexOf(freq));
+      let total = 0;
+      for (let i = 1; i < degrees.length; i += 1) {
+        total += Math.abs(degrees[i]! - degrees[i - 1]!);
+      }
+      return total / (degrees.length - 1);
+    };
+
+    const played = spread(phraseFor(word, 0));
+    const scattered = spread([...word].map(charToFreq));
+
+    expect(played).toBeLessThan(scattered);
   });
 });
 

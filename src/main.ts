@@ -6,7 +6,13 @@ import {
   setTempo,
   unlock,
 } from "./audio/engine.ts";
-import { bpmFromIntervals, brightnessFromBpm, charToFreq, flat } from "./audio/music.ts";
+import {
+  bpmFromIntervals,
+  brightnessFromBpm,
+  charToFreq,
+  flat,
+  phraseFor,
+} from "./audio/music.ts";
 import { back, createSession, press, renderWord } from "./typing/session.ts";
 
 /** Narrowing a module-level const doesn't reach into the handlers below, so
@@ -82,17 +88,25 @@ function pulse(state: string): void {
   document.body.dataset["last"] = state;
 }
 
+/** Which chord the loop is on. The phrase for a word is written against it. */
+let chord = 0;
+
 function handleChar(char: string): void {
   begin();
+
+  const word = session.words[session.index] ?? "";
+  const at = session.typed[session.index]?.length ?? 0;
   const result = press(session, char, performance.now());
 
   if (result.wordComplete) {
-    advanceChord();
+    chord = advanceChord();
     pulse("word");
   } else {
-    const freq = charToFreq(char);
-    // a mistyped letter isn't silence or a buzzer: it lands a semitone flat
-    // and bends home, which reads as a blue note rather than an error
+    const phrase = phraseFor(word, chord);
+    // typed correctly, the letter takes its place in the word's composed line;
+    // mistyped, it steps off the line onto the note its own letter names, a
+    // semitone flat and bending home — a blue note, not a buzzer
+    const freq = result.matched && at < phrase.length ? phrase[at]! : charToFreq(char);
     playNote(freq, result.matched ? undefined : flat(freq));
     pulse(result.matched ? "hit" : "bent");
   }
