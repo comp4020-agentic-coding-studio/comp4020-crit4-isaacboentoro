@@ -34,6 +34,10 @@ ship); CI runs the same plus links, secrets and the deploy. Read the failure.
 `spec/README.md`, `PROCESS.md` and `reflections/README.md` are in this repo and
 say what they are for.
 
+### Writing paragraphs in websites
+
+When writing paragraphs or text, try to keep it short and boilerplate so I can expand on it instead.
+
 ## This file is yours
 
 A starting point, not a rulebook. As you learn what your prototype needs --- a
