@@ -38,6 +38,30 @@ say what they are for.
 
 When writing paragraphs or text, try to keep it short and boilerplate so I can expand on it instead.
 
+## What this prototype is
+
+A typing instrument: words scroll under a caret, every key sounds a note, and
+your typing cadence sets the tempo. It is not a typing test. The crit spec says
+"there is no way to play it wrong --- no score, no fail state", so there is no
+accuracy figure, no results screen, no end, and nothing on the page ever turns
+red. Anything that reads as a mark against the player is a bug.
+
+## Facts about this stack that are easy to get wrong
+
+- **Astro inlines a small `<script>` into the HTML.** `spec/instrument.test.ts`
+  only reads `dist/**/*.js`, so a page that audibly works can still fail the
+  spec. `vite.build.assetsInlineLimit: 0` in `astro.config.mjs` forces every
+  script out to a file; don't remove it.
+- **jsdom has no Web Audio.** Anything you want to test has to live in a module
+  that never imports `AudioContext` --- `src/audio/music.ts` is that module, and
+  `src/audio/engine.ts` is the part that can only be checked in a browser.
+- **The context starts suspended.** Sound only ever starts from a real gesture.
+  `unlock()` writes the context state to `<html data-audio>`, so a blocked
+  autoplay policy is visible instead of silently silent.
+- **Look at the rendered page, not the diff.** Screenshots come from headless
+  Chromium over CDP. That harness cannot emulate `pointer: coarse`, so don't
+  ship a `@media (pointer: ...)` branch you have not seen with your own eyes.
+
 ## This file is yours
 
 A starting point, not a rulebook. As you learn what your prototype needs --- a
