@@ -7,17 +7,39 @@ import "../styles/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>An instrument</title>
-    <meta name="description" content="COMP4020 crit 4 prototype." />
+    <title>Type anything — a typing instrument</title>
+    <meta
+      name="description"
+      content="A typing instrument. Every key is a note, every finished word moves the chord, and your typing speed sets the tempo. Nothing you press is wrong."
+    />
     <meta property="og:image" content="./card.png" />
   </head>
   <body>
-    <nav>
-      <a href="#main">Skip to content</a>
+    <nav aria-label="Skip links">
+      <a href="#main">Skip to the instrument</a>
     </nav>
     <main id="main">
-      <h1>An instrument</h1>
-      <p>Press a key.</p>
+      <h1>Type anything</h1>
+      <p id="hint">Every key is a note. Nothing you press is wrong.</p>
+
+      <div id="stage" class="stage"></div>
+
+      <input
+        id="keys"
+        class="keys"
+        type="text"
+        aria-label="Type here to play"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        inputmode="text"
+      />
+
+      <p class="readout">
+        <span id="tempo" class="tempo">50 bpm</span>
+        <button id="mute" class="mute" type="button" aria-pressed="false">sound on</button>
+      </p>
     </main>
     <script src="../main.ts"></script>
   </body>
