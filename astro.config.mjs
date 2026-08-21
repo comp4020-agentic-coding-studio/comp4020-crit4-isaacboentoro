@@ -47,6 +47,13 @@ function relativeAssetUrls() {
 export default defineConfig({
   site: "https://comp4020-agentic-coding-studio.github.io/comp4020-crit4-isaacboentoro",
   integrations: [relativeAssetUrls()],
+  // Astro inlines a small `<script>` straight into the HTML. That is fine for
+  // the browser and fatal for spec/instrument.test.ts, which reads dist/**/*.js
+  // and would find no AudioContext at all. Force every script out to its own
+  // file so what the spec reads is what the page actually runs.
+  vite: {
+    build: { assetsInlineLimit: 0 },
+  },
   image: {
     // the Image component generates the srcset and sizes, and filters its
     // breakpoints down to the source width so nothing is upscaled
