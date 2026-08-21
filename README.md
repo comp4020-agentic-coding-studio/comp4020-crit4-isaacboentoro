@@ -1,28 +1,35 @@
-# COMP4020 static prototype template
+# Type anything
 
-A starter template for static-site prototypes in **COMP4020 / COMP8020 Agentic
-Coding Studio**. The course provisions a repo from this template for each
-deliverable --- you don't create it yourself. The `start` course skill clones it
-for you; from there, build your prototype and deploy it to GitHub Pages.
+A typing instrument for COMP4020 crit 4. Words scroll under a caret and every
+key you press sounds a note, synthesized live in the browser with the Web Audio
+API. It is not a typing test: there is no accuracy figure, no results screen and
+no way to finish.
 
-## CI and Pages only turn on when you ship
+- **Every key is a note.** Pitches come from one fixed pentatonic pool, so
+  nothing you press can be out of key.
+- **A mistyped letter is a blue note.** It lands a semitone flat and bends home
+  over a tenth of a second. Nothing ever turns red.
+- **Finishing a word moves the harmony** one step through a four-chord loop.
+- **Your typing cadence is the tempo.** The median gap between keystrokes sets
+  the bpm of the backing pulse and opens the filter as you speed up.
+- **Two people sound different** typing the same words, because rhythm, pauses
+  and mistakes are all instrument controls.
 
-Your repo starts private, and both CI jobs (`check` and `deploy`) are gated on
-it being public. While private, a push to `main` runs nothing in CI ---
-`pnpm check` (below) is your feedback loop until then. When you're ready, the
-course's `/ship` skill flips the repo public, turns on GitHub Pages, and
-dispatches the deploy for you; there's nothing to configure in the Pages
-settings yourself. From that point, every push to `main` builds and deploys, and
-the deploy step prints your live URL and checks it returns 200.
+Playable with a keyboard, or by tapping the page on a phone to bring up the
+software keyboard.
 
-## What gets marked
+## Where things are
 
-The deployed site is the deliverable, assessed live in Chrome at two fixed
-viewports --- see the course website's
-[assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#marking-environment)
-for the details.
+- `src/audio/music.ts` --- the scale, the chord loop and the cadence-to-tempo
+  maths. Pure functions, no Web Audio, so they can be tested.
+- `src/audio/engine.ts` --- the AudioContext, the voices and the backing pulse.
+- `src/typing/session.ts` --- what is on screen and what has been typed. Keeps
+  no tally of how well you are doing.
+- `src/main.ts` --- keyboard, touch and rendering.
+- `spec/no-wrong-note.test.ts` --- asserts the "no way to play it wrong" spec
+  line against the pitch set.
 
-## Quick start
+## Running it
 
 ```sh
 mise install       # supported path: install the template's Node and pnpm
@@ -43,26 +50,21 @@ problems with mise.
 
 ## What's here
 
-- `index.html`, `styles.css`, `main.ts` --- a minimal starting site. Replace it.
-- `mise.toml` --- the tested Node and pnpm versions for this template.
+- `src/` --- the prototype (see above).
+- `mise.toml` --- the tested Node and pnpm versions.
 - `spec/` --- what the checks are for (`README.md`), the shipped invariants
-  (`invariants.test.ts`), and a replaceable starter test (`starter.test.ts`);
-  the spec tests you write live alongside them.
+  (`invariants.test.ts`), the course's crit-4 contract (`instrument.test.ts`)
+  and this prototype's own (`no-wrong-note.test.ts`).
 - `CLAUDE.md` --- orients whoever works in this repo, you or a coding agent:
   what the checks mean and how to work here. Yours to grow.
-- `PROCESS.md` --- a template for your process overview, showing the
-  cited-moment format. Replace it with your own; `pnpm check:evidence` verifies
-  your citations resolve.
+- `PROCESS.md` --- the process overview, with cited commits;
+  `pnpm check:evidence` verifies the citations resolve.
+- `reflections/crit-4.md` --- this week's reflection.
 - `.github/workflows/checks.yml` --- the CI sensors that run on every push once
   your repo is public, and the GitHub Pages deploy.
 - `.githooks/pre-commit` --- blocks any commit that contains something shaped
   like an API key, so your COMP4020 key can't end up in a public repo. Installed
   automatically by `pnpm install`.
 
-This template is SSG-agnostic: plain HTML/CSS/TypeScript on Vite, so you can add
-Astro, Eleventy, or any static generator later without changing how it deploys.
-The course plugin's `stack` skill performs the swap for you — to the course
-default (Astro) or bare HTML/CSS — with the Pages base path, lockfile, and CI
-link check handled.
-
-See the course site for how the checks map to each week of the course.
+Built with Astro, which builds to plain HTML/CSS/JS and deploys to GitHub
+Pages.

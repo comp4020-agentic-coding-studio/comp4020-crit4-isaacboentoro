@@ -23,12 +23,12 @@ someone shares it. The card check is presence only: a path that doesn't resolve
 shows up in the course gallery, not as a red check, so look at the deployed head
 when you add pages.
 
-## A worked example (yours to replace)
+## This prototype's spec test
 
-`starter.test.ts` shows the shape of a spec test: it checks the starter page's
-intro hook. It's a worked example, not part of the always-on contract — replace
-or delete it when you replace the starter page. A starter implementation detail
-is not a universal invariant.
+`no-wrong-note.test.ts` asserts one published crit-4 line — "there is no way to
+play it wrong" — against the pitch set in `src/audio/music.ts`, not against the
+DOM. That is deliberate: it is a claim about what the instrument can sound, so
+it survives a rewrite of the audio layer or of the page.
 
 ## Your spec tests (yours to write)
 

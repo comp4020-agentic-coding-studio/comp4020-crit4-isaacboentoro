@@ -117,15 +117,21 @@ function voice(freq: number, when: number, options: VoiceOptions = {}): void {
   shimmer.stop(when + release + 0.05);
 }
 
-/** Resume the context. Safe to call on every gesture; only the first matters. */
+/**
+ * Resume the context. Safe to call on every gesture; only the first matters.
+ * The state lands on <html data-audio> so a blocked autoplay policy is visible
+ * on the page instead of being silently silent.
+ */
 export function unlock(): void {
   const { ctx } = rigUp();
-  if (ctx.state !== "running") void ctx.resume();
-  startScheduler();
-}
+  const report = (): void => {
+    document.documentElement.dataset["audio"] = ctx.state;
+  };
 
-export function isReady(): boolean {
-  return rig?.ctx.state === "running";
+  report();
+  if (ctx.state !== "running") void ctx.resume().then(report, report);
+  ctx.addEventListener("statechange", report);
+  startScheduler();
 }
 
 /** A typed character. `bendFrom` is set when the character wasn't the expected one. */
