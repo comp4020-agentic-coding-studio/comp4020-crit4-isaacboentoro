@@ -17,7 +17,14 @@ const LOOKAHEAD = 60;
 /** Words kept behind it, so the DOM doesn't grow without bound. */
 const TRAIL = 12;
 
+export type Mode = "prompt" | "free";
+
 export interface Session {
+  /**
+   * In prompt mode, the words to type. In free mode, whatever has been typed —
+   * the target and the attempt are the same string, so nothing can mismatch.
+   */
+  mode: Mode;
   /** The words on screen, oldest first. */
   words: string[];
   /** What the player actually typed for each word, aligned with `words`. */
@@ -31,9 +38,11 @@ export interface Session {
 
 const pick = (): string => CORPUS[Math.floor(Math.random() * CORPUS.length)]!;
 
-export function createSession(): Session {
-  const words = Array.from({ length: LOOKAHEAD }, pick);
+export function createSession(mode: Mode = "prompt"): Session {
+  const words = mode === "free" ? [""] : Array.from({ length: LOOKAHEAD }, pick);
+
   return {
+    mode,
     words,
     typed: words.map(() => ""),
     index: 0,
@@ -44,9 +53,16 @@ export function createSession(): Session {
 
 /** Top up ahead of the caret and drop what has scrolled well behind it. */
 function refill(session: Session): void {
-  while (session.words.length - session.index < LOOKAHEAD) {
-    session.words.push(pick());
-    session.typed.push("");
+  if (session.mode === "free") {
+    if (session.index >= session.words.length) {
+      session.words.push("");
+      session.typed.push("");
+    }
+  } else {
+    while (session.words.length - session.index < LOOKAHEAD) {
+      session.words.push(pick());
+      session.typed.push("");
+    }
   }
 
   if (session.index > TRAIL * 2) {
@@ -90,6 +106,12 @@ export function press(session: Session, char: string, now: number): Press {
   const at = session.typed[session.index]!.length;
   session.typed[session.index] += char;
 
+  // free mode has no target to miss: the word becomes whatever you typed
+  if (session.mode === "free") {
+    session.words[session.index] = session.typed[session.index]!;
+    return { char, matched: true, wordComplete: false };
+  }
+
   return { char, matched: word[at] === char, wordComplete: false };
 }
 
@@ -100,6 +122,9 @@ export function back(session: Session, now: number): boolean {
   const current = session.typed[session.index]!;
   if (current.length > 0) {
     session.typed[session.index] = current.slice(0, -1);
+    if (session.mode === "free") {
+      session.words[session.index] = session.typed[session.index]!;
+    }
     return true;
   }
 

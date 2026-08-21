@@ -37,8 +37,15 @@ import "../styles/global.css";
       />
 
       <p class="readout">
+        <span id="chord" class="chord">Am</span>
         <span id="tempo" class="tempo">50 bpm</span>
-        <button id="mute" class="mute" type="button" aria-pressed="false">sound on</button>
+        <button
+          id="mode"
+          class="pill"
+          type="button"
+          aria-label="Typing mode"
+          aria-pressed="false">words</button>
+        <button id="mute" class="pill" type="button" aria-pressed="false">sound on</button>
       </p>
     </main>
     <script src="../main.ts"></script>

@@ -1,7 +1,7 @@
 // Everything that touches Web Audio lives here. One AudioContext, built on the
 // first gesture because the autoplay policy leaves it suspended until then.
 
-import { BASS, CHORDS, MIN_BPM } from "./music.ts";
+import { MIN_BPM } from "./music.ts";
 
 interface Rig {
   ctx: AudioContext;
@@ -10,7 +10,8 @@ interface Rig {
 }
 
 let rig: Rig | null = null;
-let chordIndex = 0;
+/** The pad voicing currently sounding, which the backing pulse arpeggiates. */
+let pad: number[] = [];
 let bpm = MIN_BPM;
 let brightness = 0.3;
 let lastPlayed = 0;
@@ -141,14 +142,14 @@ export function playNote(freq: number, bendFrom?: number): void {
   voice(freq, ctx.currentTime, { from: bendFrom, level: 0.2 });
 }
 
-/** A finished word: the harmony moves. */
-export function advanceChord(): number {
+/** A finished word: the harmony moves to whatever chord that word carries. */
+export function playChord(tones: readonly number[], bass: number, landing?: number): void {
   const { ctx } = rigUp();
-  chordIndex = (chordIndex + 1) % CHORDS.length;
-  lastPlayed = ctx.currentTime;
-
   const now = ctx.currentTime;
-  for (const [i, freq] of CHORDS[chordIndex]!.entries()) {
+  lastPlayed = now;
+  pad = [...tones];
+
+  for (const [i, freq] of tones.entries()) {
     voice(freq, now + i * 0.012, {
       level: 0.075,
       release: 2.6,
@@ -156,14 +157,11 @@ export function advanceChord(): number {
       colour: brightness * 0.5,
     });
   }
-  voice(BASS[chordIndex]!, now, {
-    level: 0.16,
-    release: 1.6,
-    type: "sine",
-    colour: 0.05,
-  });
 
-  return chordIndex;
+  voice(bass, now, { level: 0.16, release: 1.6, type: "sine", colour: 0.05 });
+
+  // the melody note the line comes to rest on, if the caller has one
+  if (landing !== undefined) voice(landing, now, { level: 0.17, release: 1.4 });
 }
 
 /** Backspace. Quiet, downward, and deliberately not a buzzer. */
@@ -205,10 +203,11 @@ function startScheduler(): void {
       return;
     }
 
+    if (pad.length === 0) return;
+
     while (nextPulseAt < ctx.currentTime + 0.15) {
       nextPulseAt = Math.max(nextPulseAt, ctx.currentTime);
-      const chord = CHORDS[chordIndex]!;
-      const freq = chord[pulseStep % chord.length]! * 2;
+      const freq = pad[pulseStep % pad.length]! * 2;
       voice(freq, nextPulseAt, {
         level: pulseStep % 4 === 0 ? 0.05 : 0.028,
         release: beat * 1.8,

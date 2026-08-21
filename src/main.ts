@@ -1,19 +1,20 @@
+import { playChord, playNote, playUndo, setMuted, setTempo, unlock } from "./audio/engine.ts";
 import {
-  advanceChord,
-  playNote,
-  playUndo,
-  setMuted,
-  setTempo,
-  unlock,
-} from "./audio/engine.ts";
-import {
+  bassOf,
   bpmFromIntervals,
   brightnessFromBpm,
   charToFreq,
+  type Chord,
+  chordForWord,
   flat,
+  openingNote,
   phraseFor,
+  PITCHES,
+  resolveFrom,
+  stepTo,
+  voicing,
 } from "./audio/music.ts";
-import { back, createSession, press, renderWord } from "./typing/session.ts";
+import { back, createSession, type Mode, press, renderWord } from "./typing/session.ts";
 
 /** Narrowing a module-level const doesn't reach into the handlers below, so
  * the null check has to happen where the element is bound. */
@@ -27,9 +28,11 @@ const stage = must<HTMLElement>("#stage");
 const keys = must<HTMLInputElement>("#keys");
 const tempo = must<HTMLElement>("#tempo");
 const hint = must<HTMLElement>("#hint");
+const chordLabel = must<HTMLElement>("#chord");
 const mute = must<HTMLButtonElement>("#mute");
+const modeButton = must<HTMLButtonElement>("#mode");
 
-const session = createSession();
+let session = createSession();
 
 /** How much of the word list is drawn: enough to read ahead, not the whole tail. */
 const BEHIND = 6;
@@ -88,25 +91,45 @@ function pulse(state: string): void {
   document.body.dataset["last"] = state;
 }
 
-/** Which chord the loop is on. The phrase for a word is written against it. */
-let chord = 0;
+/** The chord sounding now — chosen by the word before this one. */
+let chord: Chord = chordForWord("");
+/** Where the melody line currently sits, which is all free mode needs to know. */
+let line = openingNote("", chord);
+
+function showChord(): void {
+  chordLabel.textContent = chord.name;
+}
 
 function handleChar(char: string): void {
   begin();
 
   const word = session.words[session.index] ?? "";
-  const at = session.typed[session.index]?.length ?? 0;
+  const typed = session.typed[session.index] ?? "";
+  const at = typed.length;
   const result = press(session, char, performance.now());
 
   if (result.wordComplete) {
-    chord = advanceChord();
+    // the word you just finished names the chord that follows it, and the line
+    // comes to rest on a note that chord contains
+    chord = chordForWord(session.mode === "free" ? typed : word);
+    line = resolveFrom(line, chord);
+    playChord(voicing(chord), bassOf(chord), PITCHES[line]!);
+    showChord();
     pulse("word");
+  } else if (session.mode === "free") {
+    // no word known in advance, so the line walks one letter at a time — the
+    // same rules the composed phrase is built from, applied live
+    line = stepTo(line, char, at % 8 < 4);
+    playNote(PITCHES[line]!);
+    pulse("hit");
   } else {
     const phrase = phraseFor(word, chord);
     // typed correctly, the letter takes its place in the word's composed line;
     // mistyped, it steps off the line onto the note its own letter names, a
     // semitone flat and bending home — a blue note, not a buzzer
-    const freq = result.matched && at < phrase.length ? phrase[at]! : charToFreq(char);
+    const onLine = result.matched && at < phrase.length;
+    const freq = onLine ? phrase[at]! : charToFreq(char);
+    if (onLine) line = PITCHES.indexOf(freq);
     playNote(freq, result.matched ? undefined : flat(freq));
     pulse(result.matched ? "hit" : "bent");
   }
@@ -165,6 +188,23 @@ document.addEventListener("pointerdown", (event) => {
   unlock();
 });
 
+function switchTo(mode: Mode): void {
+  session = createSession(mode);
+  chord = chordForWord("");
+  line = openingNote("", chord);
+  modeButton.textContent = mode === "free" ? "free" : "words";
+  modeButton.setAttribute("aria-pressed", String(mode === "free"));
+  document.body.dataset["mode"] = mode;
+  showChord();
+  readTempo();
+  draw();
+  keys.focus();
+}
+
+modeButton.addEventListener("click", () => {
+  switchTo(session.mode === "free" ? "prompt" : "free");
+});
+
 mute.addEventListener("click", () => {
   const next = mute.getAttribute("aria-pressed") !== "true";
   mute.setAttribute("aria-pressed", String(next));
@@ -173,5 +213,6 @@ mute.addEventListener("click", () => {
 });
 
 keys.focus();
+showChord();
 readTempo();
 draw();

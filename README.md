@@ -14,7 +14,14 @@ no way to finish.
 - **A mistyped letter is a blue note.** It steps off the line onto the note its
   own letter names, a semitone flat, bending home over a tenth of a second.
   Nothing ever turns red.
-- **Finishing a word moves the harmony** one step through a four-chord loop.
+- **Every word carries its own chord.** Each letter already names a note, so a
+  word's chord is the triad containing the most of them — the question a
+  musician asks when harmonising a melody. Nothing is looked up, so any word in
+  any language gets one, and the chords you land on are a progression you wrote
+  by choosing words.
+- **Two modes.** *Words* gives you something to type and marks the letters that
+  left the line. *Free* has no prompt at all: type anything, every key is
+  correct, and the melody walks by the same rules one letter at a time.
 - **Your typing cadence is the tempo.** The median gap between keystrokes sets
   the bpm of the backing pulse and opens the filter as you speed up.
 - **Two people sound different** typing the same words, because rhythm, pauses
@@ -25,8 +32,8 @@ software keyboard.
 
 ## Where things are
 
-- `src/audio/music.ts` --- the scale, the chord loop and the cadence-to-tempo
-  maths. Pure functions, no Web Audio, so they can be tested.
+- `src/audio/music.ts` --- the scale, the chords, the melody walk and the
+  cadence-to-tempo maths. Pure functions, no Web Audio, so they can be tested.
 - `src/audio/engine.ts` --- the AudioContext, the voices and the backing pulse.
 - `src/typing/session.ts` --- what is on screen and what has been typed. Keeps
   no tally of how well you are doing.

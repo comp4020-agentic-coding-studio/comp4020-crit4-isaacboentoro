@@ -41,7 +41,9 @@ When writing paragraphs or text, try to keep it short and boilerplate so I can e
 ## What this prototype is
 
 A typing instrument: words scroll under a caret, every key sounds a note, a word
-typed correctly plays a composed phrase, and your typing cadence sets the tempo. It is not a typing test. The crit spec says
+typed correctly plays a composed phrase, the word you finish chooses the chord
+that follows it, and your typing cadence sets the tempo. Two modes --- a prompt
+to type, or free typing with no prompt at all. It is not a typing test. The crit spec says
 "there is no way to play it wrong --- no score, no fail state", so there is no
 accuracy figure, no results screen, no end, and nothing on the page ever turns
 red. Anything that reads as a mark against the player is a bug.
@@ -52,6 +54,10 @@ red. Anything that reads as a mark against the player is a bug.
   only reads `dist/**/*.js`, so a page that audibly works can still fail the
   spec. `vite.build.assetsInlineLimit: 0` in `astro.config.mjs` forces every
   script out to a file; don't remove it.
+- **No tables of music.** Chords are stacked out of the scale and chosen by
+  which of a word's own letter-notes they contain, so nothing is hardcoded and
+  any word in any language gets one. If you find yourself writing a list of
+  chords or a progression, derive it instead.
 - **Musical rules belong in `music.ts` and get asserted.** The phrase generator
   is held to its own rules by `spec/no-wrong-note.test.ts` — in the pool, moving
   by step, resolving on a chord tone. That test has already caught a real bug
